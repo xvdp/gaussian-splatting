@@ -6,6 +6,8 @@ If run with default values it should result in identical behaviour as the origin
 * load_image_mode = 0 : stores the viewPointCams in a torch Dataset and uses multiprocessing from the correspoding Dataloader to load images. Even with multiple workers this option is slower than the others.
 * load_image_mode = 2 : creates an .h5 file to store all images and scales and loads from a slice. This option is fast on resolution scale 8 or 4. It may add loading overhead when when images are larger but it can load larger images or scenes with lots of images. Disk space is required.
 
+Why was this done: on my travelling laptop (has 16GB GPU) I can train with 3000 images of size 4828x3206 (resolution 2, images shot with a SonyAR7V) In contrast, loading the default loader only allows this machine to load smaller datasets (of ~150 images) of resolution 8: size 1207x802.
+
 The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches developed on gaussian splatting utilize the same structure, so it should be simple to update the other codes. 
 
 
