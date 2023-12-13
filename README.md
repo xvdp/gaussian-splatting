@@ -6,7 +6,7 @@ If run with default values it should result in identical behaviour as the origin
 * load_image_mode = 0 : stores the viewPointCams in a torch Dataset and uses multiprocessing from the correspoding Dataloader to load images. Even with multiple workers this option is slower than the others.
 * load_image_mode = 2 : creates an .h5 file to store all images and scales and loads from a slice. This option is fast on resolution scale 8 or 4. It may add loading overhead when when images are larger but it can load larger images or scenes with lots of images. Disk space is required.
 
-The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches utilize the same structure, so it should be a relatively painless 
+The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches developed on gaussian splatting utilize the same structure, so it should be simple to update the other codes. 
 
 
 ___
