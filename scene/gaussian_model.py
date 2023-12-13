@@ -8,7 +8,7 @@
 #
 # For inquiries contact  george.drettakis@inria.fr
 #
-
+import math
 import torch
 import numpy as np
 from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
@@ -17,10 +17,25 @@ import os
 from utils.system_utils import mkdir_p
 from plyfile import PlyData, PlyElement
 from utils.sh_utils import RGB2SH
-from simple_knn._C import distCUDA2
+
 from utils.graphics_utils import BasicPointCloud
 from utils.general_utils import strip_symmetric, build_scaling_rotation
 
+def mean_dist(p: torch.Tensor, size: int = 1024, k: int = 3) -> torch.Tensor:
+    """ KISS closest points, slower than distCUDA2 but ok if run only once
+    """
+    steps = math.ceil(len(p)/size)
+    j = dict(axis=-1)
+    return torch.cat([
+        ((p[i*size: (i+1)*size][:, None] - p)**2).sum(**j).sort(**j)[0][:, 1:k+1].mean(**j)
+        for i in range(steps)
+    ])
+
+try:
+    from simple_knn._C import distCUDA2
+except ImportError as e:
+    print(e, " using python mean_dist() instead")
+    distCUDA2 = mean_dist
 class GaussianModel:
 
     def setup_functions(self):
@@ -29,7 +44,7 @@ class GaussianModel:
             actual_covariance = L @ L.transpose(1, 2)
             symm = strip_symmetric(actual_covariance)
             return symm
-        
+
         self.scaling_activation = torch.exp
         self.scaling_inverse_activation = torch.log
 

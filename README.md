@@ -1,4 +1,15 @@
 # 3D Gaussian Splatting for Real-Time Radiance Field Rendering
+## low_memory branch: xvdp
+Original project training routines load all images in memory, which reduces max image size that can be used and prevents training on scenes with large number of images. This branch trades training speed for larger datasets.
+
+If run with default values it should result in identical behaviour as the original code, equivalent to passing load_image_mode = 1. If one has sufficient GPU memory and small enough datasets this option suffices, and is fastest.
+* load_image_mode = 0 : stores the viewPointCams in a torch Dataset and uses multiprocessing from the correspoding Dataloader to load images.
+* load_image_mode = 2 : creates an .h5 file to store all images and loads from there. This option is equally fast on resolution scale 8 but adds some loading overhead when when images are larger - but  it can load larger images or scenes with lots of imeages. Disk space is requried.
+
+The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches utilize the same structure, so it should be a relatively painless 
+
+
+___
 Bernhard Kerbl*, Georgios Kopanas*, Thomas Leimkühler, George Drettakis (* indicates equal contribution)<br>
 | [Webpage](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/) | [Full Paper](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/3d_gaussian_splatting_high.pdf) | [Video](https://youtu.be/T_kXY43VZnk) | [Other GRAPHDECO Publications](http://www-sop.inria.fr/reves/publis/gdindex.php) | [FUNGRAPH project page](https://fungraph.inria.fr) |<br>
 | [T&T+DB COLMAP (650MB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip) | [Pre-trained Models (14 GB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/pretrained/models.zip) | [Viewers for Windows (60MB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/binaries/viewers.zip) | [Evaluation Images (7 GB)](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/evaluation/images.zip) |<br>
