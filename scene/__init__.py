@@ -23,7 +23,7 @@ class Scene:
     gaussians : GaussianModel
 
     def __init__(self, args : ModelParams, gaussians : GaussianModel, load_iteration=None,
-                 shuffle=True, resolution_scales=[1.0], load_images_mode=2):
+                 shuffle=True, resolution_scales=[1.0], load_images_mode=1):
         """b
         :param path: Path to colmap scene main folder.
         low-memory args added:
@@ -51,7 +51,8 @@ class Scene:
                                                           load_images_mode=load_images_mode)
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")
-            scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval)
+            scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval,
+                                                           load_images_mode=load_images_mode)
         else:
             assert False, "Could not recognize scene type!"
 

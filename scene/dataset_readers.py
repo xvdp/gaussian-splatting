@@ -3,7 +3,7 @@
 # GRAPHDECO research group, https://team.inria.fr/graphdeco
 # All rights reserved.
 #
-# This software is free for non-commercial, research and evaluation use
+# This software is free for non-commercial, research and evaluation use 
 # under the terms of the LICENSE.md file.
 #
 # For inquiries contact  george.drettakis@inria.fr
@@ -153,7 +153,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-def readColmapSceneInfo(path, images, eval, llffhold=8, load_images_mode=0):
+def readColmapSceneInfo(path, images, eval, llffhold=8, load_images_mode=1):
     try:
         cameras_extrinsic_file = os.path.join(path, "sparse/0", "images.bin")
         cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
@@ -203,9 +203,12 @@ def readColmapSceneInfo(path, images, eval, llffhold=8, load_images_mode=0):
                            ply_path=ply_path)
     return scene_info
 
-def readCamerasFromTransforms(path, transformsfile, white_background, extension=".png"):
-    """TODO add load_images_mode  
+def readCamerasFromTransforms(path, transformsfile, white_background, extension=".png",
+                              load_images_mode=1):
+    """TODO add load_images_mode
     """
+    if load_images_mode != 1:
+        raise NotImplementedError("TODO: h5 or dataloader, only load to memory supported for this method")
     cam_infos = []
 
     with open(os.path.join(path, transformsfile)) as json_file:
@@ -248,7 +251,12 @@ def readCamerasFromTransforms(path, transformsfile, white_background, extension=
 
     return cam_infos
 
-def readNerfSyntheticInfo(path, white_background, eval, extension=".png"):
+def readNerfSyntheticInfo(path, white_background, eval, extension=".png", load_images_mode=1):
+    """TODO add load_images_mode
+    """
+    if load_images_mode != 1:
+        raise NotImplementedError("TODO: h5 or dataloader, only load to memory supported for this method")
+
     print("Reading Training Transforms")
     train_cam_infos = readCamerasFromTransforms(path, "transforms_train.json", white_background, extension)
     print("Reading Test Transforms")
