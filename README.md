@@ -2,11 +2,13 @@
 ## low_memory branch: xvdp
 Original project training routines load all images in memory, which reduces max image size that can be used and prevents training on scenes with large number of images. This branch trades training speed for larger datasets.
 
-If run with default values it should result in identical behaviour as the original code, equivalent to passing load_image_mode = 1. If one has sufficient GPU memory and small enough datasets this option suffices, and is fastest.
-* load_image_mode = 0 : stores the viewPointCams in a torch Dataset and uses multiprocessing from the correspoding Dataloader to load images.
-* load_image_mode = 2 : creates an .h5 file to store all images and loads from there. This option is equally fast on resolution scale 8 but adds some loading overhead when when images are larger - but  it can load larger images or scenes with lots of imeages. Disk space is requried.
+If run with default values it should result in identical behaviour as the original code, equivalent to passing load_image_mode = 1. If one has sufficient GPU memory and small enough datasets this option suffices, however unlike Neural Radiance Fields, this code works on a single image at a time, therefore Images could be loaded on demand instead of all together.
+* load_image_mode = 0 : stores the viewPointCams in a torch Dataset and uses multiprocessing from the correspoding Dataloader to load images. Even with multiple workers this option is slower than the others.
+* load_image_mode = 2 : creates an .h5 file to store all images and scales and loads from a slice. This option is fast on resolution scale 8 or 4. It may add loading overhead when when images are larger but it can load larger images or scenes with lots of images. Disk space is required.
 
-The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches utilize the same structure, so it should be a relatively painless 
+Why was this done: on my travelling laptop (has 16GB GPU) I can train with 3000 images of size 4828x3206 (resolution 2, images shot with a SonyAR7V) In contrast, loading the default loader only allows this machine to load smaller datasets (of ~150 images) of resolution 8: size 1207x802.
+
+The code to modify loading is a bit messy as it attempts to keep the original code structure, it was built so because so many of the branches developed on gaussian splatting utilize the same structure, so it should be simple to update the other codes. 
 
 
 ___
