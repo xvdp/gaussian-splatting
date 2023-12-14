@@ -2,14 +2,17 @@
 Dataset to serve view points while loading cameras from disk
 using torch Dataloader
 """
-from typing import Union, Optional
+from typing import TypeVar, Union, Optional, Any
 import os
 import os.path as osp
+from copy import deepcopy
 import numpy as np
 from PIL import Image, ImageFile
 import torch
 from torch.utils.data import Dataset
 
+
+_T = TypeVar('_T')
 
 # pylint: disable=no-member
 
@@ -52,3 +55,56 @@ def image_8bit_to_tensor(image: Union[str, ImageFile.ImageFile, np.ndarray],
     if len(image) == 4:
         image[:3] *= image[3:]
     return image[:3]
+
+
+class ObjDict(dict):
+    """ dict with attrs
+    Examples:
+    >>> d = ObjDict(**{'some_key':some_value})
+    >>> d = ObjDict(some_key=some_value)
+    subset of koreto.ObjDict 
+        """
+    def __getattr__(self, name: str) -> Any:
+        try:
+            return self[name]
+        except KeyError:
+            raise AttributeError(name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        self[name] = value
+        if isinstance(value, dict):
+            self[name] = ObjDict(self[name])
+            self[name]._recurse_obj()
+
+    def __delattr__(self, name: str) -> None:
+        del self[name]
+
+    def getkey(self, index: int) -> Any:
+        """ get key by index"""
+        return list(self.keys())[index]
+
+    def getvalue(self, index: int) -> Any:
+        """ get value by index"""
+        return list(self.values())[index]
+
+    def getitem(self, index: int) -> tuple:
+        """ get (key,value) by index"""
+        return list(self.items())[index]
+
+    def update_exclusive(self, *args, **kwargs) -> None:
+        """ update only existing kwargs
+        """
+        for a in args:
+            if isinstance(a, dict):
+                kwargs.update(a)
+        upk = {k:v for k,v in kwargs.items() if k in self}
+        self.update(**upk)
+
+    def copyobj(self: _T) -> _T:
+        """ .copy() returns a dict, not ObjDict"""
+        return ObjDict(self.copy())
+
+    def deepcopy(self: _T) -> _T:
+        """this is ok except in case of pytorch
+        """
+        return deepcopy(self)

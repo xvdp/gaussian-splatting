@@ -3,7 +3,7 @@
 # GRAPHDECO research group, https://team.inria.fr/graphdeco
 # All rights reserved.
 #
-# This software is free for non-commercial, research and evaluation use
+# This software is free for non-commercial, research and evaluation use 
 # under the terms of the LICENSE.md file.
 #
 # For inquiries contact  george.drettakis@inria.fr
@@ -23,9 +23,9 @@ from utils.loss_utils import l1_loss, ssim
 from utils.general_utils import safe_state
 from utils.image_utils import psnr
 from utils.h5 import H5
-from utils.dataset import CamInfoDataset
+from utils.dataset import CamInfoDataset, ObjDict
 from arguments import ModelParams, PipelineParams, OptimizationParams
-from koreto import ObjDict
+
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -114,13 +114,14 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                     data_iterator = iter(dload)
                 cam = next(data_iterator)
                 viewpoint_cam = ObjDict(original_image=cam[0], world_view_transform=cam[1],
-                                        full_proj_transform=cam[2], camera_center=cam[3], FoVx=cam[4],
-                                        FoVy=cam[5], image_width=cam[6], image_height=cam[7])
+                                        full_proj_transform=cam[2], camera_center=cam[3],
+                                        FoVx=cam[4], FoVy=cam[5], image_width=cam[6],
+                                        image_height=cam[7])
 
             if load_images_mode != 1: # viewpoint_stack stored in cpu
-                viewpoint_cam.world_view_transform = viewpoint_cam.world_view_transform.to(device="cuda")
-                viewpoint_cam.full_proj_transform = viewpoint_cam.full_proj_transform.to(device="cuda")
-                viewpoint_cam.camera_center = viewpoint_cam.camera_center.to(device="cuda")
+                viewpoint_cam.world_view_transform = viewpoint_cam.world_view_transform.cuda()
+                viewpoint_cam.full_proj_transform = viewpoint_cam.full_proj_transform.cuda()
+                viewpoint_cam.camera_center = viewpoint_cam.camera_center.cuda()
 
             # Render
             if (iteration - 1) == debug_from:
